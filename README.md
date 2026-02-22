@@ -32,6 +32,7 @@
 - [Troubleshooting](#troubleshooting)
   - [No camera detected](#no-camera-detected)
   - [GPU errors](#gpu-errors)
+  - [Error setting up CDI](#error-setting-up-cdi)
 - [License](#license)
   - [Third-Party Components](#third-party-components)
 - [Contributing](#contributing)
@@ -116,9 +117,6 @@ The configuration file looks like this:
   "effect_mode"     : "",      // "blur" | "replace" | "remove" | "none"
   "background_image": "",      // path to image
   "blur_strength"   : 0,       // 0-100
-  "vcam_enabled"    : False,   // True | False
-  "preview_enabled" : False,   // True | False
-  "overlay_enabled" : False,   // True | False
   "resolution"      : "",      // resolution, eg "1280x720"
   "fps"             : 30,
   "input_device"    : "",      // device path, eg "/dev/video0"
