@@ -30,14 +30,24 @@ fi
 
 if [ ! -e "$VCAM_DEVICE" ]; then
     echo "Loading virtual camera module..."
+  
+    if lsmod | grep -q '^v4l2loopback'; then
+        sudo -n modprobe -r v4l2loopback 2>/dev/null || \
+            pkexec modprobe -r v4l2loopback 2>/dev/null || true
+        sleep 1
+    fi
     if sudo -n modprobe v4l2loopback devices=1 video_nr=10 \
         card_label="BluCast Virtual Camera" exclusive_caps=1 \
         max_buffers=2 max_openers=10 2>/dev/null; then
         sleep 1
     elif command -v pkexec &>/dev/null; then
-        pkexec modprobe v4l2loopback devices=1 video_nr=10 \
+        if ! pkexec modprobe v4l2loopback devices=1 video_nr=10 \
             card_label="BluCast Virtual Camera" exclusive_caps=1 \
-            max_buffers=2 max_openers=10
+            max_buffers=2 max_openers=10; then
+            echo "Error: Cannot load v4l2loopback module."
+            echo "Run: sudo modprobe v4l2loopback devices=1 video_nr=10 card_label='BluCast Virtual Camera' exclusive_caps=1"
+            exit 1
+        fi
         sleep 1
     else
         echo "Error: Cannot load v4l2loopback module."
