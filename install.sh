@@ -148,7 +148,7 @@ echo -e "${BLUE}[5/5]${NC} Creating desktop entry..."
 
 chmod +x "$SCRIPT_DIR/run.sh"
 chmod +x "$SCRIPT_DIR/scripts/vcam_watcher.sh" 2>/dev/null || true
-chmod +x "$SCRIPT_DIR/scripts/reset-environment.sh" 2>/dev/null || true
+chmod +x "$SCRIPT_DIR/scripts/uninstall.sh" 2>/dev/null || true
 
 DESKTOP_FILE="$HOME/.local/share/applications/blucast.desktop"
 mkdir -p "$(dirname "$DESKTOP_FILE")"
@@ -171,7 +171,7 @@ echo -e "${GREEN}═════════════════════
 echo -e "${GREEN}     Installation Complete!${NC}"
 echo -e "${GREEN}══════════════════════════════════════${NC}"
 echo ""
-echo -e "  Launch: ${BLUE}$SCRIPT_DIR/run.sh${NC}"
-echo -e "  Or find ${BLUE}BluCast${NC} in your application menu."
-echo -e "  Reset:  ${BLUE}$SCRIPT_DIR/scripts/reset-environment.sh${NC}"
+echo -e "  Launch:    ${BLUE}$SCRIPT_DIR/run.sh${NC}"
+echo -e "  Or find   ${BLUE}BluCast${NC} in your application menu."
+echo -e "  Uninstall: ${BLUE}$SCRIPT_DIR/scripts/uninstall.sh${NC}"
 echo ""

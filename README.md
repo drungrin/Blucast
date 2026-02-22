@@ -28,6 +28,7 @@
   - [3. Extract SDKs to the `sdk/` directory](#3-extract-sdks-to-the-sdk-directory)
   - [4. Build and run](#4-build-and-run)
 - [Virtual Camera Setup](#virtual-camera-setup)
+- [Uninstalling](#uninstalling)
 - [Troubleshooting](#troubleshooting)
   - [No camera detected](#no-camera-detected)
   - [GPU errors](#gpu-errors)
@@ -67,6 +68,12 @@ The easiest way to get BluCast running:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Andrei9383/BluCast/main/scripts/install-remote.sh | bash
 ```
+
+> [!NOTE]
+> **Fedora users:** After installation you will most likely need to generate the CDI spec for GPU passthrough to work. See [Error setting up CDI](#error-setting-up-cdi) in the Troubleshooting section.
+
+> [!TIP]
+> **Firefox users:** If the BluCast virtual camera doesn't appear in Firefox, open `about:config` and set `media.webrtc.camera.allow-pipewire` to `false`.
 
 Or manually:
 
@@ -193,6 +200,14 @@ And `/etc/modprobe.d/v4l2loopback.conf`:
 ```
 options v4l2loopback devices=1 video_nr=10 card_label="BluCast Camera" exclusive_caps=1
 ```
+
+## Uninstalling
+
+```bash
+./scripts/uninstall.sh
+```
+
+This stops any running containers, unloads the kernel module, removes all system config files (modprobe, udev, sudoers), and deletes the desktop entry and user settings.
 
 ## Troubleshooting
 
