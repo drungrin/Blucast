@@ -202,17 +202,30 @@ fi
 
 if [ ! -e "$VCAM_DEVICE" ]; then
     echo "Loading virtual camera module..."
+    # If the module is already loaded but the device is missing, it was likely
+    # loaded at boot with wrong parameters (e.g., without video_nr=10). Unload
+    # it so we can reload with the correct options.
+    if lsmod | grep -q '^v4l2loopback'; then
+        sudo -n modprobe -r v4l2loopback 2>/dev/null || \
+            pkexec modprobe -r v4l2loopback 2>/dev/null || true
+        sleep 1
+    fi
     if sudo -n modprobe v4l2loopback devices=1 video_nr=10 \
         card_label="BluCast Virtual Camera" exclusive_caps=1 \
         max_buffers=2 max_openers=10 2>/dev/null; then
         sleep 1
     elif command -v pkexec &>/dev/null; then
-        pkexec modprobe v4l2loopback devices=1 video_nr=10 \
+        if ! pkexec modprobe v4l2loopback devices=1 video_nr=10 \
             card_label="BluCast Virtual Camera" exclusive_caps=1 \
-            max_buffers=2 max_openers=10
+            max_buffers=2 max_openers=10; then
+            echo "Error: Cannot load v4l2loopback module."
+            echo "Run: sudo modprobe v4l2loopback devices=1 video_nr=10 card_label='BluCast Virtual Camera' exclusive_caps=1"
+            exit 1
+        fi
         sleep 1
     else
         echo "Error: Cannot load v4l2loopback module."
+        echo "Run: sudo modprobe v4l2loopback devices=1 video_nr=10 card_label='BluCast Virtual Camera' exclusive_caps=1"
         exit 1
     fi
 fi
@@ -315,7 +328,7 @@ $CONTAINER_CMD run --rm \
 RUNSCRIPT_EOF
 chmod +x "$INSTALL_DIR/run.sh"
 
-cat > "$INSTALL_DIR/reset-environment.sh" << 'RESET_EOF'
+cat > "$INSTALL_DIR/uninstall.sh" << 'UNINSTALL_EOF'
 #!/bin/bash
 set -euo pipefail
 
@@ -353,9 +366,9 @@ for svc in wireplumber.service xdg-desktop-portal.service \
     systemctl --user restart "$svc" 2>/dev/null || true
 done
 
-echo "Environment fully reset. You can re-run the installer."
-RESET_EOF
-chmod +x "$INSTALL_DIR/reset-environment.sh"
+echo "BluCast uninstalled. To reinstall, run the installer."
+UNINSTALL_EOF
+chmod +x "$INSTALL_DIR/uninstall.sh"
 
 ln -sf "$INSTALL_DIR/run.sh" "$BIN_DIR/blucast"
 log "Launcher: $BIN_DIR/blucast"
@@ -394,9 +407,9 @@ echo -e "${GREEN}═════════════════════
 echo -e "${GREEN}     Installation Complete!${NC}"
 echo -e "${GREEN}══════════════════════════════════════${NC}"
 echo ""
-echo -e "  Launch: ${BLUE}blucast${NC}"
-echo -e "  Or find ${BLUE}BluCast${NC} in your application menu."
-echo -e "  Reset:  ${BLUE}$INSTALL_DIR/reset-environment.sh${NC}"
+echo -e "  Launch:    ${BLUE}blucast${NC}"
+echo -e "  Or find   ${BLUE}BluCast${NC} in your application menu."
+echo -e "  Uninstall: ${BLUE}$INSTALL_DIR/uninstall.sh${NC}"
 echo ""
 
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
