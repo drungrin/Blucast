@@ -454,7 +454,7 @@ class ControlPanel(QMainWindow):
         # ── Status indicator ──
         status_card = Card()
         status_layout = QHBoxLayout(status_card)
-        # status_layout.setContentsMargins(16, 12, 16, 12)
+        status_layout.setContentsMargins(16, 12, 16, 12)
 
         status_info = QVBoxLayout()
         status_info.setSpacing(2)
@@ -475,7 +475,7 @@ class ControlPanel(QMainWindow):
         # ── Effects ──
         effects_card = Card()
         fx_layout = QVBoxLayout(effects_card)
-        # fx_layout.setContentsMargins(16, 16, 16, 16)
+        fx_layout.setContentsMargins(16, 16, 16, 16)
         fx_layout.setSpacing(16)
 
         fx_title = QLabel("Background Effects")
