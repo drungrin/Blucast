@@ -55,7 +55,7 @@ QScrollArea > QWidget > QWidget { background: transparent; }
 QLabel { color: #94a3b8; border: 0; }
 QComboBox {
     background: #1a1f1a; border: 1px solid #2d3d2d; border-radius: 10px;
-    padding: 12px 16px; padding-right: 40px; font-size: 14px; min-height: 22px; color: #e2e8f0;
+    padding: 12px 16px; font-size: 14px; min-height: 22px; color: #e2e8f0;
 }
 QComboBox:hover { border-color: #3b82f6; background: #1f2a1f; }
 QComboBox::drop-down { border: none; width: 40px; }
@@ -296,8 +296,8 @@ class ControlPanel(QMainWindow):
         super().__init__()
         self.settings = Settings()
         self.setWindowTitle("BluCast")
-        self.setMinimumSize(480, 780)
-        self.resize(500, 880)
+        self.setMinimumSize(540, 800)
+        self.resize(540, 900)
         self.supported_formats: Dict[str, List[int]] = {}
 
         self._build_ui()
@@ -454,7 +454,7 @@ class ControlPanel(QMainWindow):
         # ── Status indicator ──
         status_card = Card()
         status_layout = QHBoxLayout(status_card)
-        status_layout.setContentsMargins(16, 12, 16, 12)
+        # status_layout.setContentsMargins(16, 12, 16, 12)
 
         status_info = QVBoxLayout()
         status_info.setSpacing(2)
@@ -475,7 +475,7 @@ class ControlPanel(QMainWindow):
         # ── Effects ──
         effects_card = Card()
         fx_layout = QVBoxLayout(effects_card)
-        fx_layout.setContentsMargins(16, 16, 16, 16)
+        # fx_layout.setContentsMargins(16, 16, 16, 16)
         fx_layout.setSpacing(16)
 
         fx_title = QLabel("Background Effects")
