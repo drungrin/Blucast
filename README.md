@@ -45,6 +45,7 @@
 - **Background Replacement** - Use any image as your background
 - **Background Blur**
 - **On-demand camera usage** - Camera (and processing power) is only used when needed
+- **Native Wayland and X11 support** - Auto-detects your display server for seamless integration
 
 ## Prerequisites
 
@@ -85,12 +86,27 @@ podman pull ghcr.io/andrei9383/blucast:latest
 # Setup virtual camera (requires v4l2loopback)
 sudo modprobe v4l2loopback devices=1 video_nr=10 card_label="BluCast Camera" exclusive_caps=1
 
-# Run
+# Run (X11)
 podman run --rm \
   --device nvidia.com/gpu=all \
   --device /dev/video0 \
   --device /dev/video10 \
   -e DISPLAY=$DISPLAY \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  -v $HOME/.config/blucast:/root/.config/blucast \
+  --network host \
+  ghcr.io/andrei9383/blucast:latest
+
+# Run (Wayland)
+podman run --rm \
+  --device nvidia.com/gpu=all \
+  --device /dev/video0 \
+  --device /dev/video10 \
+  -e DISPLAY=$DISPLAY \
+  -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
+  -e XDG_RUNTIME_DIR=/tmp/runtime-root \
+  -e QT_QPA_PLATFORM=wayland \
+  -v $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/runtime-root/$WAYLAND_DISPLAY \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
   -v $HOME/.config/blucast:/root/.config/blucast \
   --network host \
