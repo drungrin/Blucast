@@ -9,7 +9,6 @@ RUN apt-get update && apt-get install -y \
 
 COPY sdk/TensorRT /usr/local/TensorRT
 COPY sdk/VideoFX          /usr/local/VideoFX
-#COPY sdk/cudnn             /usr/local/cuda/
 
 ENV LD_LIBRARY_PATH=/usr/local/VideoFX/external/tensorrt/lib:/usr/local/VideoFX/external/cuda/lib:/usr/local/VideoFX/lib:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
