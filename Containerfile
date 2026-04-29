@@ -1,4 +1,3 @@
-#FROM docker.io/nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04 AS builder
 FROM docker.io/nvidia/cuda:12.9.1-cudnn-devel-ubuntu20.04 AS builder
 
 
@@ -23,7 +22,6 @@ RUN mkdir -p /build/blucast && cd /build/blucast && \
     -DCMAKE_EXE_LINKER_FLAGS='-L/usr/local/VideoFX/lib -L/usr/local/VideoFX/external/tensorrt/lib -L/usr/local/VideoFX/external/cuda/lib -Wl,-rpath,/usr/local/VideoFX/lib:/usr/local/VideoFX/external/tensorrt/lib:/usr/local/VideoFX/external/cuda/lib' && \
     make -j$(nproc)
 
-#FROM docker.io/nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04
 FROM docker.io/nvidia/cuda:12.9.1-cudnn-runtime-ubuntu20.04
 
 LABEL maintainer="BluCast"
