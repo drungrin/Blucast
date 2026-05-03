@@ -305,17 +305,34 @@ mkdir -p "$CONFIG_DIR"
 
 echo "Starting BluCast..."
 
+# --- Auto-detect Wayland vs X11 ---
+if [ -n "${WAYLAND_DISPLAY:-}" ] || [ "${XDG_SESSION_TYPE:-}" = "wayland" ]; then
+    WAYLAND_SOCK="${WAYLAND_DISPLAY:-wayland-0}"
+    GUI_ARGS=(
+        -e "QT_QPA_PLATFORM=wayland"
+        -e "WAYLAND_DISPLAY=$WAYLAND_SOCK"
+        -e "XDG_RUNTIME_DIR=/tmp/runtime-root"
+        -v "$XDG_RUNTIME_DIR/$WAYLAND_SOCK:/tmp/runtime-root/$WAYLAND_SOCK:rw"
+        -e "DISPLAY=${DISPLAY:-:0}"
+        -v "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+    )
+else
+    GUI_ARGS=(
+        -e "QT_QPA_PLATFORM=xcb"
+        -e "DISPLAY=${DISPLAY:-:0}"
+        -e XDG_RUNTIME_DIR=/tmp/runtime-root
+        -v "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+    )
+fi
+
 $CONTAINER_CMD run --rm \
     --security-opt label=disable \
     $GPU_ARGS \
     $CAMERA_ARGS \
-    -e DISPLAY="${DISPLAY:-:0}" \
     -e NVIDIA_DRIVER_CAPABILITIES=all \
     -e NVIDIA_VISIBLE_DEVICES=all \
-    -e QT_QPA_PLATFORM=xcb \
     -e QT_LOGGING_RULES="*.debug=false" \
-    -e XDG_RUNTIME_DIR=/tmp/runtime-root \
-    -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+    "${GUI_ARGS[@]}" \
     $XAUTH_ARGS \
     $DBUS_ARGS \
     -v "$HOME:/host_home:ro" \
