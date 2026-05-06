@@ -22,6 +22,9 @@ RUN mkdir -p /build/blucast && cd /build/blucast && \
     make -j$(nproc)
 
 FROM docker.io/nvidia/cuda:12.9.1-cudnn-runtime-ubuntu20.04
+RUN gcc -shared -fPIC -o /build/libcc_spoof.so /app/cc_spoof.c -ldl
+
+FROM docker.io/nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04
 
 LABEL maintainer="BluCast"
 LABEL description="AI-powered virtual camera with NVIDIA VideoFX"
@@ -41,6 +44,7 @@ RUN apt-get update && apt-get install -y \
 RUN pip3 install --no-cache-dir PySide6 numpy
 
 COPY --from=builder /build/blucast/blucast_server /app/blucast_server
+COPY --from=builder /build/libcc_spoof.so /usr/local/lib/blucast/libcc_spoof.so
 
 COPY --from=builder /usr/local/VideoFX/external/tensorrt/lib/libnvinfer.so*        /usr/local/lib/blucast/
 COPY --from=builder /usr/local/VideoFX/external/tensorrt/lib/libnvinfer_dispatch.so* /usr/local/lib/blucast/
@@ -70,7 +74,7 @@ RUN mkdir -p /tmp/blucast /root/.config/blucast
 RUN echo '#!/bin/bash\n\
 set -e\n\
 echo "Starting BluCast server..."\n\
-/app/blucast_server --model_dir=/usr/local/VideoFX/lib/models &\n\
+LD_PRELOAD=/usr/local/lib/blucast/libcc_spoof.so /app/blucast_server --model_dir=/usr/local/VideoFX/lib/models &\n\
 SERVER_PID=$!\n\
 \n\
 # Wait for the command pipe to be created\n\

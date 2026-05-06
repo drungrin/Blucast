@@ -50,7 +50,7 @@ fi
 
 echo -e "${BLUE}[2/5]${NC} Setting up virtual camera..."
 
-if ! modinfo v4l2loopback &>/dev/null 2>&1; then
+if ! sudo modinfo v4l2loopback &>/dev/null 2>&1; then
     echo "  Installing v4l2loopback..."
     if command -v dnf &>/dev/null; then
         sudo dnf install -y v4l2loopback kmod-v4l2loopback 2>/dev/null \
@@ -64,7 +64,7 @@ if ! modinfo v4l2loopback &>/dev/null 2>&1; then
         die "Unsupported package manager. Install v4l2loopback manually."
     fi
 fi
-modinfo v4l2loopback &>/dev/null 2>&1 || die "v4l2loopback module not available. Reboot may be needed."
+sudo modinfo v4l2loopback &>/dev/null 2>&1 || die "v4l2loopback module not available. Reboot may be needed."
 log "v4l2loopback module available"
 
 for tool_pkg in "lsof lsof" "fuser psmisc"; do
@@ -305,17 +305,34 @@ mkdir -p "$CONFIG_DIR"
 
 echo "Starting BluCast..."
 
+# --- Auto-detect Wayland vs X11 ---
+if [ -n "${WAYLAND_DISPLAY:-}" ] || [ "${XDG_SESSION_TYPE:-}" = "wayland" ]; then
+    WAYLAND_SOCK="${WAYLAND_DISPLAY:-wayland-0}"
+    GUI_ARGS=(
+        -e "QT_QPA_PLATFORM=wayland"
+        -e "WAYLAND_DISPLAY=$WAYLAND_SOCK"
+        -e "XDG_RUNTIME_DIR=/tmp/runtime-root"
+        -v "$XDG_RUNTIME_DIR/$WAYLAND_SOCK:/tmp/runtime-root/$WAYLAND_SOCK:rw"
+        -e "DISPLAY=${DISPLAY:-:0}"
+        -v "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+    )
+else
+    GUI_ARGS=(
+        -e "QT_QPA_PLATFORM=xcb"
+        -e "DISPLAY=${DISPLAY:-:0}"
+        -e XDG_RUNTIME_DIR=/tmp/runtime-root
+        -v "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+    )
+fi
+
 $CONTAINER_CMD run --rm \
     --security-opt label=disable \
     $GPU_ARGS \
     $CAMERA_ARGS \
-    -e DISPLAY="${DISPLAY:-:0}" \
     -e NVIDIA_DRIVER_CAPABILITIES=all \
     -e NVIDIA_VISIBLE_DEVICES=all \
-    -e QT_QPA_PLATFORM=xcb \
     -e QT_LOGGING_RULES="*.debug=false" \
-    -e XDG_RUNTIME_DIR=/tmp/runtime-root \
-    -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+    "${GUI_ARGS[@]}" \
     $XAUTH_ARGS \
     $DBUS_ARGS \
     -v "$HOME:/host_home:ro" \
